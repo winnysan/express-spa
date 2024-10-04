@@ -1,64 +1,95 @@
 console.log("script has been loaded");
 
+// Počkáme, kým sa načíta celý DOM (Document Object Model)
 document.addEventListener("DOMContentLoaded", () => {
+  /**
+   * Funkcia pre navigáciu na novú URL bez obnovy celej stránky
+   * @param {string} url - Cieľová URL, na ktorú chceme navigovať
+   */
   const navigateTo = (url) => {
+    // Vykonáme fetch požiadavku na zadanú URL
     fetch(url, {
       headers: {
-        "X-Requested-With": "XMLHttpRequest",
+        "X-Requested-With": "XMLHttpRequest", // Indikuje serveru, že ide o AJAX požiadavku
       },
     })
-      .then((response) => response.text())
-      .then((html) => {
-        document.getElementById("app").innerHTML = html;
-        history.pushState(null, null, url);
-        initializePage(); // Inicializujeme event listenery
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.text(); // Získame odpoveď ako text (HTML)
       })
-      .catch((err) => console.error("Chyba pri načítaní stránky:", err));
+      .then((html) => {
+        // Nahradíme obsah elementu s id 'app' novým HTML
+        document.getElementById("app").innerHTML = html;
+        // Aktualizujeme históriu prehliadača s novou URL bez obnovy stránky
+        history.pushState(null, null, url);
+        // Inicializujeme event listenery pre novú stránku
+        initializePage();
+      })
+      .catch((err) => console.error("Chyba pri načítaní stránky:", err)); // Ošetríme prípadné chyby
   };
 
+  /**
+   * Event listener pre kliknutia na odkazy s atribútom 'data-link'
+   * Tento listener zachytáva kliknutia na odkazy a naviguje na novú URL pomocou SPA
+   */
   document.body.addEventListener("click", (e) => {
     if (e.target.matches("[data-link]")) {
-      e.preventDefault();
-      navigateTo(e.target.href);
+      e.preventDefault(); // Zabránime predvolenému správaniu (navigácia prehliadača)
+      navigateTo(e.target.href); // Voláme našu funkciu navigateTo s URL z odkazu
     }
   });
 
+  /**
+   * Event listener pre udalosť 'popstate'
+   * Spracováva navigáciu pomocou tlačidiel Späť a Dopredu v prehliadači
+   */
   window.addEventListener("popstate", () => {
     // Pri navigácii pomocou tlačidiel prehliadača načítame obsah aktuálnej URL
     fetch(location.pathname + location.search, {
       headers: {
-        "X-Requested-With": "XMLHttpRequest",
+        "X-Requested-With": "XMLHttpRequest", // Indikuje serveru, že ide o AJAX požiadavku
       },
     })
-      .then((response) => response.text())
-      .then((html) => {
-        document.getElementById("app").innerHTML = html;
-        initializePage(); // Inicializujeme event listenery
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.text(); // Získame odpoveď ako text (HTML)
       })
-      .catch((err) => console.error("Chyba pri načítaní stránky:", err));
+      .then((html) => {
+        // Nahradíme obsah elementu s id 'app' novým HTML
+        document.getElementById("app").innerHTML = html;
+        // Inicializujeme event listenery pre novú stránku
+        initializePage();
+      })
+      .catch((err) => console.error("Chyba pri načítaní stránky:", err)); // Ošetríme prípadné chyby
   });
 
-  // Definícia funkcie initializePage
+  /**
+   * Funkcia initializePage
+   * Inicializuje všetky event listenery a ďalšiu logiku, ktorá je potrebná po načítaní novej stránky
+   */
   const initializePage = () => {
-    // Tu vlož event listenery, ktoré sa majú znovu načítať pri každej zmene stránky
-
-    // Príklad: Event listener pre tlačidlo s id 'myButton'
+    // Event listener pre tlačidlo s id 'myButton'
     const myButton = document.getElementById("myButton");
     if (myButton) {
       myButton.addEventListener("click", () => {
-        alert("Tlačidlo bolo stlačené!");
+        navigateTo("/contact"); // Presmerovanie na stránku /contact pomocou SPA
       });
     }
 
-    // Príklad: Event listenery pre všetky prvky s triedou 'someClass'
+    // Event listenery pre všetky prvky s triedou 'someClass'
     const elements = document.querySelectorAll(".someClass");
     elements.forEach((element) => {
       element.addEventListener("mouseover", () => {
-        console.log("Prešiel si myšou nad prvkom.");
+        console.log("Prešiel si myšou nad prvkom."); // Logovanie správy do konzoly pri prechode myšou
       });
     });
 
     // Tu môžeš pridať ďalšie inicializácie potrebné pre aktuálnu stránku
+    // Napríklad pripojenie ďalších event listenerov, inicializácia knižníc atď.
   };
 
   // Inicializuj stránku pri prvom načítaní
