@@ -1,3 +1,7 @@
 <main>
   <h1><%= slug %></h1>
+
+  <% if (typeof queryParam !== 'undefined') { %>
+  <p>Parameter z query stringu: <%= queryParam %></p>
+  <% } %>
 </main>
