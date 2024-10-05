@@ -1,0 +1,10 @@
+<header>
+  <a href="/" data-link>Home</a>
+  <a href="/contact" data-link>Contact</a>
+  <a href="/post/post-title?param=hodnota" data-link>Post</a>
+  <% if (typeof user === 'undefined') { %>
+  <a href="/" data-link>Login</a>
+  <% } else { %>
+  <button>Logout</button>
+  <% } %>
+</header>
